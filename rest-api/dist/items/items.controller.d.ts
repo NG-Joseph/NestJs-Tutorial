@@ -4,9 +4,9 @@ import { Item } from './interfaces/item.interfaces';
 export declare class ItemsController {
     private readonly itemsService;
     constructor(itemsService: ItemsService);
-    findAll(): Item[];
-    findOne(id: any): Item;
-    create(CreateItemDto: CreateItemDto): string;
-    delete(id: any): string;
-    update(updateItemDto: CreateItemDto, id: any): string;
+    findAll(): Promise<Item[]>;
+    findOne(id: string): Promise<Item>;
+    create(createItemDto: CreateItemDto): Promise<Item>;
+    delete(id: string): Promise<Item>;
+    update(updateItemDto: CreateItemDto, id: string): Promise<Item>;
 }
