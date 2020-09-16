@@ -1,0 +1,7 @@
+html
+    head
+        title='Pug - Item Index'
+    body
+        ul
+            each item in items
+                li=item.name + ', Quantity:' + item.qty + ', Description:' + item.description

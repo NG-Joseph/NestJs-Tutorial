@@ -17,12 +17,16 @@ let ItemsModule = class ItemsModule {
     configure(consumer) {
         consumer
             .apply(audit_middleware_1.AuditMiddleware)
-            .forRoutes({ path: 'jobs/*', method: common_1.RequestMethod.DELETE });
+            .forRoutes({ path: 'items/*', method: common_1.RequestMethod.DELETE });
     }
 };
 ItemsModule = __decorate([
     common_1.Module({
-        imports: [mongoose_1.MongooseModule.forFeature([{ name: 'Item', schema: item_schema_1.ItemSchema }])],
+        imports: [mongoose_1.MongooseModule.forFeature([{ name: 'Item', schema: item_schema_1.ItemSchema }]),
+            common_1.CacheModule.register({
+                ttl: 5,
+                max: 100.
+            })],
         controllers: [items_controller_1.ItemsController],
         providers: [items_service_1.ItemsService],
     })

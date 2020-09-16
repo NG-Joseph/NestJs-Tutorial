@@ -20,12 +20,15 @@ const http_exception_filter_1 = require("../filters/http-exception.filter");
 const validation_pipe_1 = require("../pipes/validation.pipe");
 const itemdata_decorator_1 = require("../decorators/itemdata.decorator");
 const validation_exception_1 = require("../filters/validation-exception");
+const benchmark_interceptor_1 = require("../interceptors/benchmark.interceptor");
 let ItemsController = class ItemsController {
     constructor(itemsService) {
         this.itemsService = itemsService;
     }
-    findAll() {
-        return this.itemsService.findAll();
+    root() {
+        return this.itemsService
+            .findAll()
+            .then((result) => result ? { items: result } : { jobs: [] });
     }
     findOne(id) {
         return this.itemsService.findOne(id)
@@ -52,12 +55,17 @@ let ItemsController = class ItemsController {
 };
 __decorate([
     common_1.Get(),
+    common_1.CacheKey('allItems'),
+    common_1.CacheTTL(15),
+    common_1.Render('items/index'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], ItemsController.prototype, "findAll", null);
+    __metadata("design:returntype", void 0)
+], ItemsController.prototype, "root", null);
 __decorate([
     common_1.Get(':id'),
+    common_1.CacheKey('allItems'),
+    common_1.CacheTTL(30),
     common_1.UseFilters(http_exception_filter_1.HttpExceptionFilter),
     __param(0, common_1.Param('id')),
     __metadata("design:type", Function),
@@ -88,7 +96,7 @@ __decorate([
 ], ItemsController.prototype, "update", null);
 ItemsController = __decorate([
     common_1.Controller('items'),
-    common_1.UsePipes(validation_pipe_1.ValidationPipe),
+    common_1.UseInterceptors(common_1.CacheInterceptor, benchmark_interceptor_1.BenchmarkInterceptor),
     __metadata("design:paramtypes", [items_service_1.ItemsService])
 ], ItemsController);
 exports.ItemsController = ItemsController;

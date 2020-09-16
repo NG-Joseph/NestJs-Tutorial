@@ -1,4 +1,4 @@
-import {  MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import {  MiddlewareConsumer, Module, NestModule, RequestMethod, CacheModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuditMiddleware } from 'src/middleware/audit.middleware';
 import { ItemsController } from './items.controller';
@@ -7,7 +7,11 @@ import {ItemSchema} from './schemas/item.schema'
 
 
 @Module({
-  imports: [MongooseModule.forFeature([{name: 'Item', schema: ItemSchema}])],
+  imports: [MongooseModule.forFeature([{name: 'Item', schema: ItemSchema}]),
+    CacheModule.register({
+      ttl: 5, //seconds
+      max: 100. // max number of items
+    })],
   controllers: [ ItemsController],
   providers: [ItemsService],
 })

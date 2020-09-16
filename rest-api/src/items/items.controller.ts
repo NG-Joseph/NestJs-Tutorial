@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, UseFilters, UsePipes } from '@nestjs/common';
+import { Body, CacheInterceptor, CacheKey, CacheTTL, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Render, UseFilters, UseInterceptors, UsePipes } from '@nestjs/common';
 import { CreateItemDto } from './dto/create-item-dto';
 import { ItemsService } from './items.service';
 import { Item } from './interfaces/item.interfaces';
@@ -7,19 +7,27 @@ import {HttpExceptionFilter} from '../filters/http-exception.filter'
 import {ValidationPipe} from '../pipes/validation.pipe'
 import {itemData} from '../decorators/itemdata.decorator'
 import { ValidationExceptionFilter } from 'src/filters/validation-exception';
+import {BenchmarkInterceptor} from '../interceptors/benchmark.interceptor'
 
 @Controller('items')
-@UsePipes(ValidationPipe)
+@UseInterceptors(CacheInterceptor, BenchmarkInterceptor)
 export class ItemsController {
 
   constructor(private readonly itemsService: ItemsService) { }
 
   @Get()
-  findAll(): Promise<Item[]> {
-    return this.itemsService.findAll();
+  @CacheKey('allItems')
+  @CacheTTL(15)
+  @Render('items/index')
+  root() {
+    return this.itemsService
+                .findAll()
+                .then((result) => result ? {items: result} : {jobs: []  } );
   }
 
   @Get(':id')
+  @CacheKey('allItems')
+  @CacheTTL(30)
   @UseFilters(HttpExceptionFilter)
   findOne(@Param('id') id: string): Promise<Item> {
     return this.itemsService.findOne(id)
@@ -36,6 +44,7 @@ export class ItemsController {
   }
 //Custom Filter
   @Post()
+ 
   @UseFilters(new ValidationExceptionFilter())
   create(@itemData(ValidationPipe) createItemDto: CreateItemDto): Promise<Item> {
     return this.itemsService.create(createItemDto);
