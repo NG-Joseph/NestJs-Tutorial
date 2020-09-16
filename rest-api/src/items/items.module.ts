@@ -15,7 +15,7 @@ export class ItemsModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
   consumer
     .apply(AuditMiddleware)
-    .forRoutes({path: 'jobs/*', method: RequestMethod.DELETE});
+    .forRoutes({path: 'items/*', method: RequestMethod.DELETE});
       }
   }
 
